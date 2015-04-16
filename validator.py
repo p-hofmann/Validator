@@ -283,8 +283,8 @@ class Validator(object):
 
 		if not required_space < free_space:
 			if not silent:
-				self._logger.error("{}Insufficient space! {:.2f}{label} of {:.2f}{label} available".format(
-					prefix, free_space, required_space, label=size_label))
+				self._logger.error("{}Insufficient space! {:.2f}{label} of {:.2f}{label} available at '{dir}'".format(
+					prefix, free_space, required_space, label=size_label, dir=directory))
 			return False
 		return True
 
