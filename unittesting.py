@@ -6,7 +6,6 @@ import unittest
 import os
 import shutil
 import tempfile
-from numbers import Number
 from validator import Validator
 
 
