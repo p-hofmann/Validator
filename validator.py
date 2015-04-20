@@ -18,11 +18,12 @@ class Validator(object):
 			@attention: config_file argument may be file path or stream.
 
 			@param logfile: file handler or file path to a log file
-			@type logfile: file or FileIO or None
+			@type logfile: file | FileIO | None
 			@param verbose: Not verbose means that only warnings and errors will be past to stream
 			@type verbose: bool
 
 			@return: None
+			@rtype: None
 		"""
 		self._logger = LoggingWrapper("Validator", verbose=verbose)
 		if logfile:
@@ -49,7 +50,8 @@ class Validator(object):
 			@param silent: If True, no error message will be made
 			@type silent: bool
 
-			@return: bool
+			@return: True if valid
+			@rtype: bool
 		"""
 		assert isinstance(executable, bool)
 		assert isinstance(silent, bool)
@@ -92,13 +94,14 @@ class Validator(object):
 			@param only_parent: test only the existence of the parent directory
 			@type only_parent: bool
 			@param sub_directories: test the existence of sub directories
-			@type sub_directories: list of basestring
+			@type sub_directories: list[basestring]
 			@param file_names: test the existence of files within the directory
-			@type file_names: list of basestring
+			@type file_names: list[basestring]
 			@param silent: If True, no error message will be made
 			@type silent: bool
 
 			@return: bool
+			@rtype: bool
 		"""
 		# TODO: test for valid characters
 
@@ -167,6 +170,7 @@ class Validator(object):
 			@type value: basestring
 
 			@return: basestring
+			@rtype: basestring
 		"""
 		assert isinstance(value, basestring)
 		value = os.path.expanduser(value)
@@ -192,6 +196,7 @@ class Validator(object):
 			@type silent: bool
 
 			@return: bool
+			@rtype: bool
 		"""
 		# TODO: digit >= -1 can not be properly tested yet
 		assert isinstance(digit, Number), type(digit)
@@ -244,6 +249,7 @@ class Validator(object):
 			@type silent: bool
 
 			@return: bool
+			@rtype: bool
 		"""
 		required_space = None
 		count = 4
@@ -289,22 +295,67 @@ class Validator(object):
 		return True
 
 	def free_space_in_giga_bytes(self, directory):
+		"""
+			Get available free space at a target directory.
+
+			@param directory: directory path of a folder
+			@type directory: basestring
+
+			@return: Available free space
+			@rtype: float
+		"""
 		assert self.validate_dir(directory)
 		return self._free_space(directory, 3)
 
 	def free_space_in_mega_bytes(self, directory):
+		"""
+			Get available free space at a target directory.
+
+			@param directory: directory path of a folder
+			@type directory: basestring
+
+			@return: Available free space
+			@rtype: float
+		"""
 		assert self.validate_dir(directory)
 		return self._free_space(directory, 2)
 
 	def free_space_in_kilo_bytes(self, directory):
+		"""
+			Get available free space at a target directory.
+
+			@param directory: directory path of a folder
+			@type directory: basestring
+
+			@return: Available free space
+			@rtype: float
+		"""
 		assert self.validate_dir(directory)
 		return self._free_space(directory, 1)
 
 	def free_space_in_bytes(self, directory):
+		"""
+			Get available free space at a target directory.
+
+			@param directory: directory path of a folder
+			@type directory: basestring
+
+			@return: Available free space
+			@rtype: float
+		"""
 		assert self.validate_dir(directory)
 		return self._free_space(directory)
 
 	def _free_space(self, directory, power=0):
+		"""
+			Get available free space at a target directory.
+
+			@param directory: directory path of a folder
+			@type directory: basestring
+
+			@return: Available free space
+			@rtype: float
+		"""
 		assert power >= 0
 		assert isinstance(directory, basestring)
 		assert self.validate_dir(directory)
