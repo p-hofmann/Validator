@@ -8,6 +8,14 @@ import logging
 
 
 class LoggingWrapper(object):
+	CRITICAL = logging.CRITICAL
+	FATAL = logging.CRITICAL
+	ERROR = logging.ERROR
+	WARNING = logging.WARNING
+	WARN = logging.WARN
+	INFO = logging.INFO
+	DEBUG = logging.DEBUG
+	NOTSET = logging.NOTSET
 
 	_levelNames = logging._levelNames
 	_map_logfile_handler = dict()
@@ -27,15 +35,16 @@ class LoggingWrapper(object):
 			@param date_format: "%Y-%m-%d %H:%M:%S"
 			@type date_format: basestring
 			@param stream: To have no output at all, use "stream=None", stderr by default
-			@type stream: file or FileIO or None
+			@type stream: file | FileIO | StringIO | None
 
 			@return: None
+			@rtype: None
 		"""
 		assert isinstance(label, basestring)
 		assert isinstance(verbose, bool)
 		assert message_format is None or isinstance(message_format, basestring)
 		assert message_format is None or isinstance(date_format, basestring)
-		assert stream is None or isinstance(stream, (file, io.FileIO, StringIO.StringIO)) or stream.__class__ is StringIO.StringIO
+		assert stream is None or self._is_stream(stream)
 
 		if message_format is None:
 			message_format = "%(asctime)s %(levelname)s: [%(name)s] %(message)s"
@@ -62,6 +71,10 @@ class LoggingWrapper(object):
 	def __enter__(self):
 		return self
 
+	@staticmethod
+	def _is_stream(stream):
+		return isinstance(stream, (file, io.FileIO, StringIO.StringIO)) or stream.__class__ is StringIO.StringIO
+
 	def get_label(self):
 		return self._label
 
@@ -74,6 +87,7 @@ class LoggingWrapper(object):
 			If given as stream, logfiles will be kept open!
 
 			@return: None
+			@rtype: None
 		"""
 		list_of_handlers = list(self._logger.handlers)
 		for item in list_of_handlers:
@@ -93,6 +107,7 @@ class LoggingWrapper(object):
 			@type message: basestring
 
 			@return: None
+			@rtype: None
 		"""
 		self._logger.info(message)
 
@@ -104,6 +119,7 @@ class LoggingWrapper(object):
 			@type message: basestring
 
 			@return: None
+			@rtype: None
 		"""
 		self._logger.error(message)
 
@@ -115,6 +131,7 @@ class LoggingWrapper(object):
 			@type message: basestring
 
 			@return: None
+			@rtype: None
 		"""
 		self._logger.debug(message)
 
@@ -126,6 +143,7 @@ class LoggingWrapper(object):
 			@type message: basestring
 
 			@return: None
+			@rtype: None
 		"""
 		self._logger.critical(message)
 
@@ -139,6 +157,7 @@ class LoggingWrapper(object):
 			@type message: basestring
 
 			@return: None
+			@rtype: None
 		"""
 		self._logger.exception(message)
 
@@ -150,6 +169,7 @@ class LoggingWrapper(object):
 			@type message: basestring
 
 			@return: None
+			@rtype: None
 		"""
 		self._logger.warning(message)
 
@@ -169,26 +189,27 @@ class LoggingWrapper(object):
 			@type level: int or long
 
 			@return: None
+			@rtype: None
 		"""
 		assert level in self._levelNames
 
 		list_of_handlers = self._logger.handlers
 		for handler in list_of_handlers:
 			handler.setLevel(level)
-		#self._logger.setLevel(level)
 
 	def add_log_stream(self, stream=sys.stderr, level=logging.INFO):
 		"""
 			Add a stream where messages are outputted to.
 
 			@param stream: stderr/stdout or a file stream
-			@type stream: file or FileIO
+			@type stream: file | FileIO | StringIO
 			@param level: minimum level of messages to be logged
-			@type level: int or long
+			@type level: int | long
 
 			@return: None
+			@rtype: None
 		"""
-		assert isinstance(stream, (file, io.FileIO, StringIO.StringIO)) or stream.__class__ is StringIO.StringIO
+		assert self._is_stream(stream)
 		# assert isinstance(stream, (file, io.FileIO))
 		assert level in self._levelNames
 
@@ -204,15 +225,16 @@ class LoggingWrapper(object):
 			@attention: file stream will only be closed if a file path is given!
 
 			@param log_file: file stream or file path of logfile
-			@type log_file: file or FileIO or basestring
+			@type log_file: file | FileIO | StringIO | basestring
 			@param mode: opening mode for logfile, if a file path is given
 			@type mode: basestring
 			@param level: minimum level of messages to be logged
 			@type level: int or long
 
 			@return: None
+			@rtype: None
 		"""
-		assert isinstance(log_file, (basestring, file, io.FileIO))
+		assert isinstance(log_file, basestring) or self._is_stream(log_file)
 		assert level in self._levelNames
 
 		if LoggingWrapper._map_logfile_handler[self._label] is not None:

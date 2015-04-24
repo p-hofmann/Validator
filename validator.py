@@ -3,8 +3,8 @@ __version__ = '0.0.1'
 
 import os
 import math
-from loggingwrapper import LoggingWrapper
 from numbers import Number
+from scripts.loggingwrapper import LoggingWrapper
 
 
 class Validator(object):
@@ -169,8 +169,8 @@ class Validator(object):
 			@param value: directory path or file path
 			@type value: basestring
 
-			@return: basestring
-			@rtype: basestring
+			@return: full path
+			@rtype: str
 		"""
 		assert isinstance(value, basestring)
 		value = os.path.expanduser(value)
