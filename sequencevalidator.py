@@ -13,6 +13,8 @@ class SequenceValidator(Validator):
 	"""
 		Colection of methods for the validation of sequences and sequence files
 	"""
+	_label = "SequenceValidator"
+
 	_formats = ["fasta", "fastq"]
 
 	_sequence_indicators = {
