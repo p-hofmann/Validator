@@ -4,9 +4,13 @@ __author__ = 'hofmann'
 
 import unittest
 import os
+import sys
 import shutil
 import tempfile
+from Bio import SeqIO
+from Bio.Alphabet import IUPAC
 from validator import Validator
+from sequencevalidator import SequenceValidator
 
 
 def touch(file_name, times=None):
@@ -16,7 +20,6 @@ def touch(file_name, times=None):
 
 class DefaultValidator(unittest.TestCase):
 	log_file_path = 'unittest_log.txt'
-	taxonomy_directory = '/home/hofmann/Downloads/ncbi-taxonomy_20150130/'
 	file_names = ["f0", "f1", "f2"]
 	executables = ["unittesting.py"]
 	valid_numbers = [4, 0, -1, 1.2, 999.222, 9999999999999999999.09999]
@@ -167,6 +170,92 @@ class TestValidatorMethods(DefaultValidator):
 			"Wrongly {} > {} as True declared".format(free_space, free_space+1)
 			)
 
+
+class DefaultSequenceValidator(unittest.TestCase):
+	_test_case_id = 0
+	_success = False
+
+	dir_input = "unittest_input"
+	dir_output = "unittest_output_fa_{}"
+
+	log_filename = 'unittest_log.txt'
+	filename_fasta = "unittest.fasta"
+	filename_fq = "unittest.fq"
+
+	def setUp(self):
+		self.dir_output = self.dir_output.format(DefaultSequenceValidator._test_case_id)
+		if os.path.isdir(self.dir_output):
+			shutil.rmtree(self.dir_output)
+		os.mkdir(self.dir_output)
+		sys.stderr.write("{}... ".format(DefaultSequenceValidator._test_case_id)),
+		DefaultSequenceValidator._test_case_id += 1
+
+		logfile = os.path.join(self.dir_output, self.log_filename)
+		self.file_stream = open(logfile, 'a')
+		self.validator = SequenceValidator(logfile=self.file_stream, verbose=False)
+
+	def tearDown(self):
+		self.validator.close()
+		self.validator = None
+		self.file_stream.close()
+		self.file_stream = None
+		if self._success:
+			shutil.rmtree(self.dir_output)
+
+
+class TestSequenceValidatorMethods(DefaultSequenceValidator):
+
+	def test_file_validation(self):
+		fasta_file = os.path.join(self.dir_input, self.filename_fasta)
+		fastq_file = os.path.join(self.dir_input, self.filename_fq)
+		self.assertTrue(self.validator.validate_sequence_file(fasta_file, "fasta", "dna", ambiguous=True))
+		self.assertTrue(self.validator.validate_sequence_file(fastq_file, "fastq", "dna", ambiguous=False))
+		self._success = True
+
+	def test_sequence_validation(self):
+		fasta_file = os.path.join(self.dir_input, self.filename_fasta)
+		fastq_file = os.path.join(self.dir_input, self.filename_fq)
+
+		# IUPAC.ambiguous_rna
+		with open(fasta_file) as stream:
+			for seq_record in SeqIO.parse(stream, "fasta", alphabet=IUPAC.unambiguous_dna):
+				self.assertTrue(self.validator.validate_sequence(seq_record.seq))
+
+		with open(fastq_file) as stream:
+			for seq_record in SeqIO.parse(stream, "fastq", alphabet=IUPAC.unambiguous_dna):
+				self.assertTrue(self.validator.validate_sequence(seq_record.seq))
+		self._success = True
+
+	def test_sequence_id_validation(self):
+		fasta_file = os.path.join(self.dir_input, self.filename_fasta)
+		fastq_file = os.path.join(self.dir_input, self.filename_fq)
+
+		# IUPAC.ambiguous_rna
+		with open(fasta_file) as stream:
+			for seq_record in SeqIO.parse(stream, "fasta", alphabet=IUPAC.unambiguous_dna):
+				self.assertTrue(self.validator.validate_sequence_id(seq_record.id))
+
+		with open(fastq_file) as stream:
+			for seq_record in SeqIO.parse(stream, "fastq", alphabet=IUPAC.unambiguous_dna):
+				self.assertTrue(self.validator.validate_sequence_id(seq_record.id))
+		self._success = True
+
+	def test_sequence_description_validation(self):
+		fasta_file = os.path.join(self.dir_input, self.filename_fasta)
+		fastq_file = os.path.join(self.dir_input, self.filename_fq)
+
+		# IUPAC.ambiguous_rna
+		with open(fasta_file) as stream:
+			for seq_record in SeqIO.parse(stream, "fasta", alphabet=IUPAC.unambiguous_dna):
+				self.assertTrue(self.validator.validate_sequence_description(seq_record.description))
+
+		with open(fastq_file) as stream:
+			for seq_record in SeqIO.parse(stream, "fastq", alphabet=IUPAC.unambiguous_dna):
+				self.assertTrue(self.validator.validate_sequence_description(seq_record.description))
+		self._success = True
+
 if __name__ == '__main__':
-	suite = unittest.TestLoader().loadTestsFromTestCase(TestValidatorMethods)
-	unittest.TextTestRunner(verbosity=2, buffer=True).run(suite)
+	suite0 = unittest.TestLoader().loadTestsFromTestCase(TestValidatorMethods)
+	suite1 = unittest.TestLoader().loadTestsFromTestCase(TestSequenceValidatorMethods)
+	alltests = unittest.TestSuite([suite0, suite1])
+	unittest.TextTestRunner(verbosity=2).run(alltests)
