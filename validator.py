@@ -10,6 +10,7 @@ from scripts.loggingwrapper import LoggingWrapper
 class Validator(object):
 
 	_map_logfile_handler = dict()
+	_label = "Validator"
 
 	def __init__(self, logfile=None, verbose=False):
 		"""
@@ -25,7 +26,7 @@ class Validator(object):
 			@return: None
 			@rtype: None
 		"""
-		self._logger = LoggingWrapper("Validator", verbose=verbose)
+		self._logger = LoggingWrapper(self._label, verbose=verbose)
 		if logfile:
 			self._logger.set_log_file(logfile)
 
