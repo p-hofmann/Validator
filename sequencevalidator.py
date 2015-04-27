@@ -218,7 +218,7 @@ class SequenceValidator(Validator):
 		if not set_alphabet.issuperset(sequence.upper()):
 			if not silent:
 				difference = set(sequence.upper()).difference(set_alphabet)
-				invalid_characters = difference.discard(set_alphabet)
-				self._logger.error("{}Invalid characters: ''".format(prefix, ", ".join(invalid_characters)))
+				difference.discard(set_alphabet)
+				self._logger.error("{}Invalid characters: '{}'".format(prefix, ", ".join(difference)))
 			return False
 		return True
