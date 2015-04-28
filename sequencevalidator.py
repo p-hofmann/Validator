@@ -98,24 +98,29 @@ class SequenceValidator(Validator):
 					self._logger.error("{}Invalid beginning of file '{}'.".format(prefix, os.path.basename(file_path)))
 				return False
 			sequence_count = 0
-			for seq_record in SeqIO.parse(file_handle, file_format, alphabet=alphabet):
-				sequence_count += 1
-				result = True
-				if not self.validate_sequence(seq_record.seq, key=key, silent=silent):
-					result = False
-				if not self.validate_sequence_id(seq_record.id, used_ids=set_of_seq_id, key=key, silent=silent):
-					result = False
-				set_of_seq_id.add(seq_record.id)
-				if not self.validate_sequence_description(seq_record.description, key=key, silent=silent):
-					result = False
-				if file_format == "fastq":
-					if not self.validate_sequence_quality(
-						seq_record.letter_annotations["phred_quality"], key=key, silent=silent):
+			try:
+				for seq_record in SeqIO.parse(file_handle, file_format, alphabet=alphabet):
+					sequence_count += 1
+					result = True
+					if not self.validate_sequence(seq_record.seq, key=key, silent=silent):
 						result = False
-				if not result:
-					if not silent:
-						self._logger.error("{}{}. sequence '{}' is invalid.".format(prefix, sequence_count, seq_record.id))
-					return False
+					if not self.validate_sequence_id(seq_record.id, used_ids=set_of_seq_id, key=key, silent=silent):
+						result = False
+					set_of_seq_id.add(seq_record.id)
+					if not self.validate_sequence_description(seq_record.description, key=key, silent=silent):
+						result = False
+					if file_format == "fastq":
+						if not self.validate_sequence_quality(
+							seq_record.letter_annotations["phred_quality"], key=key, silent=silent):
+							result = False
+					if not result:
+						if not silent:
+							self._logger.error("{}{}. sequence '{}' is invalid.".format(prefix, sequence_count, seq_record.id))
+						return False
+			except Exception as e:
+				if not silent:
+					self._logger.error("{}Corrupt sequence in file '{}'.\nException: {}".format(prefix, os.path.basename(file_path), e.message))
+				return False
 		return True
 
 	def _validate_file_start(self, file_handle, file_format):
