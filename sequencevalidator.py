@@ -1,5 +1,5 @@
 __author__ = 'hofmann'
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 import io
 import StringIO
@@ -16,6 +16,12 @@ class SequenceValidator(Validator):
 	_label = "SequenceValidator"
 
 	_formats = ["fasta", "fastq"]
+
+	_qformats = {
+		"sanger": [0, 40, 33],
+		"solexa": [-5, 40, 64],
+		"illumina": [0, 41, 33]  # 1.8+
+	}
 
 	_sequence_indicators = {
 		"fasta": ">",
@@ -86,14 +92,23 @@ class SequenceValidator(Validator):
 		with open(file_path) as file_handle:
 			if not self._validate_file_start(file_handle, file_format):
 				if not silent:
-					self._logger.error("{}Invalid begin of file.".format(prefix))
+					self._logger.error("{}Invalid beginning of file.".format(prefix))
 				return False
+			sequence_count = 0
 			for seq_record in SeqIO.parse(file_handle, file_format, alphabet=alphabet):
-				result = self.validate_sequence(seq_record.seq, key=key, silent=silent)
+				sequence_count += 1
+				result = True
+				if not self.validate_sequence(seq_record.seq, key=key, silent=silent):
+					result = False
+				if file_format == "fastq":
+					if not self.validate_sequence_quality(
+						seq_record.letter_annotations["phred_quality"], key=key, silent=silent):
+						result = False
 				if not result:
 					if not silent:
-						self._logger.error("{}Invalid sequence: '{}'.".format(prefix, seq_record.id))
+						self._logger.error("{}{}. sequence '{}' is invalid.".format(prefix, sequence_count, seq_record.id))
 					return False
+		# TODO: validate quality of fastq
 		return True
 
 	def _validate_file_start(self, file_handle, file_format):
@@ -187,6 +202,45 @@ class SequenceValidator(Validator):
 					self._logger.error("{}Illegal {} in sequence description".format(
 						prefix, self._illegal_characters[illegal_character]))
 				return False
+		return True
+
+	def validate_sequence_quality(self, quality, qformat="Illumina", key=None, silent=False):
+		"""
+			Validate that the sequence description has only valid characters
+
+			@attention:
+
+			@param quality: quality of each letter
+			@type quality: list[int]
+			@param qformat: 'Illumina', 'Sanger', 'Solexa'
+			@type qformat: str | unicode
+			@param key: If True, no error message will be made
+			@type key: str | unicode | None
+			@param silent: If True, no error message will be made
+			@type silent: bool
+
+			@return: True if valid, else False
+			@rtype: bool
+		"""
+		assert isinstance(quality, list)
+		assert isinstance(silent, bool)
+		assert isinstance(qformat, basestring)
+		qformat = qformat.lower()
+		assert qformat in self._qformats, "{} not in {}".format(qformat, self._qformats.keys())
+
+		prefix = ""
+		if key:
+			prefix = "'{}' ".format(key)
+
+		# offset = self._qformats[qformat][2]
+		minimum = self._qformats[qformat][0]  # +offset
+		maximum = self._qformats[qformat][1]  # +offset
+
+		invalid_indexes = ["{}: '{}'".format(index, value) for index, value in enumerate(quality) if not minimum <= value <= maximum]
+		if len(invalid_indexes) > 0:
+			if not silent:
+				self._logger.error("{}Invalid quality at: {}.".format(prefix, ", ".join(invalid_indexes)))
+			return False
 		return True
 
 	def validate_sequence(self, sequence, key=None, silent=False):
