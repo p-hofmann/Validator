@@ -90,6 +90,8 @@ class SequenceValidator(Validator):
 		else:
 			alphabet = self._alphabets[sequence_type][0]
 
+		set_of_seq_id = set()
+
 		with open(file_path) as file_handle:
 			if not self._validate_file_start(file_handle, file_format):
 				if not silent:
@@ -100,6 +102,11 @@ class SequenceValidator(Validator):
 				sequence_count += 1
 				result = True
 				if not self.validate_sequence(seq_record.seq, key=key, silent=silent):
+					result = False
+				if not self.validate_sequence_id(seq_record.id, used_ids=set_of_seq_id, key=key, silent=silent):
+					result = False
+				set_of_seq_id.add(seq_record.id)
+				if not self.validate_sequence_description(seq_record.description, key=key, silent=silent):
 					result = False
 				if file_format == "fastq":
 					if not self.validate_sequence_quality(
@@ -138,7 +145,7 @@ class SequenceValidator(Validator):
 			return False
 		return True
 
-	def validate_sequence_id(self, identifier, key=None, silent=False):
+	def validate_sequence_id(self, identifier, used_ids=None, key=None, silent=False):
 		"""
 			Validate that the sequence identifier has only valid characters
 
@@ -146,6 +153,8 @@ class SequenceValidator(Validator):
 
 			@param identifier: sequence
 			@type identifier: str | unicode
+			@param used_ids: Set of used up ids, that should not be repeated
+			@type used_ids: set
 			@param key: If True, no error message will be made
 			@type key: str | unicode | None
 			@param silent: If True, no error message will be made
@@ -154,6 +163,10 @@ class SequenceValidator(Validator):
 			@return: True if valid
 			@rtype: bool
 		"""
+		set_of_seq_id = used_ids
+		if set_of_seq_id is None:
+			set_of_seq_id = set()
+		assert isinstance(set_of_seq_id, set)
 		assert isinstance(identifier, basestring)
 		assert isinstance(silent, bool)
 
@@ -171,6 +184,11 @@ class SequenceValidator(Validator):
 					self._logger.error("{}Illegal {} in sequence id".format(
 						prefix, self._illegal_characters[illegal_character]))
 				return False
+		if identifier in set_of_seq_id:
+			if not silent:
+				self._logger.error("{}Repeated sequence id '{}'".format(
+					prefix, identifier))
+			return False
 		return True
 
 	def validate_sequence_description(self, description, key=None, silent=False):
@@ -190,6 +208,7 @@ class SequenceValidator(Validator):
 			@rtype: bool
 		"""
 		assert isinstance(description, basestring)
+		assert key is None or isinstance(key, basestring)
 		assert isinstance(silent, bool)
 
 		prefix = ""

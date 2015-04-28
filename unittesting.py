@@ -180,7 +180,8 @@ class DefaultSequenceValidator(unittest.TestCase):
 
 	log_filename = 'unittest_log.txt'
 	filename_fasta = "unittest.fasta"
-	filename_fasta_bad = "bad0.fasta"
+	filename_fasta_bad0 = "bad0.fasta"
+	filename_fasta_bad1 = "bad1.fasta"
 	filename_fasta_ambiguous = "unittest_ambiguous.fasta"
 	filename_fq = "unittest.fq"
 
@@ -210,12 +211,14 @@ class TestSequenceValidatorMethods(DefaultSequenceValidator):
 	def test_file_validation(self):
 		fasta_file = os.path.join(self.dir_input, self.filename_fasta)
 		fasta_file_ambiguous = os.path.join(self.dir_input, self.filename_fasta_ambiguous)
-		fasta_file_bad = os.path.join(self.dir_input, self.filename_fasta_bad)
+		fasta_file_bad0 = os.path.join(self.dir_input, self.filename_fasta_bad0)
+		fasta_file_bad1 = os.path.join(self.dir_input, self.filename_fasta_bad1)
 		fastq_file = os.path.join(self.dir_input, self.filename_fq)
 		self.assertTrue(self.validator.validate_sequence_file(fasta_file, "fasta", "dna", ambiguous=False))
 		self.assertFalse(self.validator.validate_sequence_file(fasta_file_ambiguous, "fasta", "dna", ambiguous=False, silent=True))
 		self.assertTrue(self.validator.validate_sequence_file(fasta_file_ambiguous, "fasta", "dna", ambiguous=True))
-		self.assertFalse(self.validator.validate_sequence_file(fasta_file_bad, "fasta", "dna", ambiguous=False, silent=True))
+		self.assertFalse(self.validator.validate_sequence_file(fasta_file_bad0, "fasta", "dna", ambiguous=False, silent=True))
+		self.assertFalse(self.validator.validate_sequence_file(fasta_file_bad1, "fasta", "dna", ambiguous=False, silent=True))
 		self.assertTrue(self.validator.validate_sequence_file(fastq_file, "fastq", "dna", ambiguous=False))
 		self._success = True
 
