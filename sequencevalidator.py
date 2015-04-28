@@ -108,7 +108,6 @@ class SequenceValidator(Validator):
 					if not silent:
 						self._logger.error("{}{}. sequence '{}' is invalid.".format(prefix, sequence_count, seq_record.id))
 					return False
-		# TODO: validate quality of fastq
 		return True
 
 	def _validate_file_start(self, file_handle, file_format):
@@ -236,7 +235,8 @@ class SequenceValidator(Validator):
 		minimum = self._qformats[qformat][0]  # +offset
 		maximum = self._qformats[qformat][1]  # +offset
 
-		invalid_indexes = ["{}: '{}'".format(index, value) for index, value in enumerate(quality) if not minimum <= value <= maximum]
+		invalid_indexes = [
+			"{}: '{}'".format(index, value) for index, value in enumerate(quality) if not minimum <= value <= maximum]
 		if len(invalid_indexes) > 0:
 			if not silent:
 				self._logger.error("{}Invalid quality at: {}.".format(prefix, ", ".join(invalid_indexes)))
