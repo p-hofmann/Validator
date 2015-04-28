@@ -180,6 +180,8 @@ class DefaultSequenceValidator(unittest.TestCase):
 
 	log_filename = 'unittest_log.txt'
 	filename_fasta = "unittest.fasta"
+	filename_fasta_bad = "bad0.fasta"
+	filename_fasta_ambiguous = "unittest_ambiguous.fasta"
 	filename_fq = "unittest.fq"
 
 	def setUp(self):
@@ -187,7 +189,7 @@ class DefaultSequenceValidator(unittest.TestCase):
 		if os.path.isdir(self.dir_output):
 			shutil.rmtree(self.dir_output)
 		os.mkdir(self.dir_output)
-		sys.stderr.write("{}... ".format(DefaultSequenceValidator._test_case_id)),
+		sys.stderr.write("\n{}... ".format(DefaultSequenceValidator._test_case_id)),
 		DefaultSequenceValidator._test_case_id += 1
 
 		logfile = os.path.join(self.dir_output, self.log_filename)
@@ -207,18 +209,28 @@ class TestSequenceValidatorMethods(DefaultSequenceValidator):
 
 	def test_file_validation(self):
 		fasta_file = os.path.join(self.dir_input, self.filename_fasta)
+		fasta_file_ambiguous = os.path.join(self.dir_input, self.filename_fasta_ambiguous)
+		fasta_file_bad = os.path.join(self.dir_input, self.filename_fasta_bad)
 		fastq_file = os.path.join(self.dir_input, self.filename_fq)
-		self.assertTrue(self.validator.validate_sequence_file(fasta_file, "fasta", "dna", ambiguous=True))
+		self.assertTrue(self.validator.validate_sequence_file(fasta_file, "fasta", "dna", ambiguous=False))
+		self.assertFalse(self.validator.validate_sequence_file(fasta_file_ambiguous, "fasta", "dna", ambiguous=False, silent=True))
+		self.assertTrue(self.validator.validate_sequence_file(fasta_file_ambiguous, "fasta", "dna", ambiguous=True))
+		self.assertFalse(self.validator.validate_sequence_file(fasta_file_bad, "fasta", "dna", ambiguous=False, silent=True))
 		self.assertTrue(self.validator.validate_sequence_file(fastq_file, "fastq", "dna", ambiguous=False))
 		self._success = True
 
 	def test_sequence_validation(self):
 		fasta_file = os.path.join(self.dir_input, self.filename_fasta)
+		fasta_file_ambiguous = os.path.join(self.dir_input, self.filename_fasta_ambiguous)
 		fastq_file = os.path.join(self.dir_input, self.filename_fq)
 
 		# IUPAC.ambiguous_rna
 		with open(fasta_file) as stream:
 			for seq_record in SeqIO.parse(stream, "fasta", alphabet=IUPAC.unambiguous_dna):
+				self.assertTrue(self.validator.validate_sequence(seq_record.seq))
+
+		with open(fasta_file_ambiguous) as stream:
+			for seq_record in SeqIO.parse(stream, "fasta", alphabet=IUPAC.ambiguous_dna):
 				self.assertTrue(self.validator.validate_sequence(seq_record.seq))
 
 		with open(fastq_file) as stream:
