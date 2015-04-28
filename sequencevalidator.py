@@ -2,6 +2,7 @@ __author__ = 'hofmann'
 __version__ = '0.0.2'
 
 import io
+import os
 import StringIO
 from Bio import SeqIO
 from Bio.Alphabet import IUPAC
@@ -92,7 +93,7 @@ class SequenceValidator(Validator):
 		with open(file_path) as file_handle:
 			if not self._validate_file_start(file_handle, file_format):
 				if not silent:
-					self._logger.error("{}Invalid beginning of file.".format(prefix))
+					self._logger.error("{}Invalid beginning of file '{}'.".format(prefix, os.path.basename(file_path)))
 				return False
 			sequence_count = 0
 			for seq_record in SeqIO.parse(file_handle, file_format, alphabet=alphabet):
