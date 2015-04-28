@@ -57,6 +57,8 @@ class SequenceValidator(Validator):
 		"""
 			Validate a file to be correctly formatted
 
+			@attention: Currently only phred quality for fastq files
+
 			@param file_path: Path to file containing sequences
 			@type file_path: str | unicode
 			@param file_format: Format of the file at the file_path provided. Valid: 'fasta', 'fastq'
@@ -119,7 +121,8 @@ class SequenceValidator(Validator):
 						return False
 			except Exception as e:
 				if not silent:
-					self._logger.error("{}Corrupt sequence in file '{}'.\nException: {}".format(prefix, os.path.basename(file_path), e.message))
+					self._logger.error("{}Corrupt sequence in file '{}'.\nException: {}".format(
+						prefix, os.path.basename(file_path), e.message))
 				return False
 		return True
 
