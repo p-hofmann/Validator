@@ -1,8 +1,9 @@
 __author__ = 'hofmann'
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 import io
 import os
+import string
 import StringIO
 from Bio import SeqIO
 from Bio.Alphabet import IUPAC
@@ -35,10 +36,7 @@ class SequenceValidator(Validator):
 		"protein": [IUPAC.protein, IUPAC.extended_protein]
 		}
 
-	_illegal_characters = {
-		'\r': "carriage return",
-		'\0': "null character"
-		}
+	_legal_text_characters = string.printable
 
 	@staticmethod
 	def _is_stream(stream):
@@ -186,12 +184,10 @@ class SequenceValidator(Validator):
 			if not silent:
 				self._logger.error("{}Missing sequence id".format(prefix))
 			return False
-		for illegal_character in self._illegal_characters:
-			if illegal_character in identifier:
-				if not silent:
-					self._logger.error("{}Illegal {} in sequence id".format(
-						prefix, self._illegal_characters[illegal_character]))
-				return False
+
+		if not self.validate_characters(identifier, legal_alphabet=self._legal_text_characters, key=key, silent=silent):
+			return False
+
 		if identifier in set_of_seq_id:
 			if not silent:
 				self._logger.error("{}Repeated sequence id '{}'".format(
@@ -219,16 +215,8 @@ class SequenceValidator(Validator):
 		assert key is None or isinstance(key, basestring)
 		assert isinstance(silent, bool)
 
-		prefix = ""
-		if key:
-			prefix = "'{}' ".format(key)
-
-		for illegal_character in self._illegal_characters:
-			if illegal_character in description:
-				if not silent:
-					self._logger.error("{}Illegal {} in sequence description".format(
-						prefix, self._illegal_characters[illegal_character]))
-				return False
+		if not self.validate_characters(description, legal_alphabet=self._legal_text_characters, key=key, silent=silent):
+			return False
 		return True
 
 	def validate_sequence_quality(self, quality, qformat="Illumina", key=None, silent=False):
@@ -294,15 +282,12 @@ class SequenceValidator(Validator):
 		if key:
 			prefix = "'{}' ".format(key)
 
-		set_alphabet = set(sequence.alphabet.letters)
 		if not len(sequence) > 0:
 			if not silent:
 				self._logger.error("{}Empty sequence".format(prefix))
 			return False
-		if not set_alphabet.issuperset(sequence.upper()):
-			if not silent:
-				difference = set(sequence.upper()).difference(set_alphabet)
-				difference.discard(set_alphabet)
-				self._logger.error("{}Invalid characters: '{}'".format(prefix, ", ".join(difference)))
+
+		if not self.validate_characters(
+			sequence.upper(), legal_alphabet=sequence.alphabet.letters, key=key, silent=silent):
 			return False
 		return True
