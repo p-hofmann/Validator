@@ -115,6 +115,7 @@ class Validator(object):
 				difference.discard(set_legal_alphabet)
 				self._logger.error("{}Invalid characters: '{}'".format(prefix, ", ".join(difference)))
 			return False
+		return True
 
 	def validate_dir(self, directory, only_parent=False, sub_directories=None, file_names=None, key=None, silent=False):
 		"""
