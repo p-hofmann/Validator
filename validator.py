@@ -1,8 +1,9 @@
 __author__ = 'hofmann'
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 import os
 import math
+import string
 from numbers import Number
 from scripts.loggingwrapper import LoggingWrapper
 
@@ -83,6 +84,37 @@ class Validator(object):
 				self._logger.error("{}Permission error. File can not be executed '{}'".format(prefix, file_path))
 			return False
 		return True
+
+	def validate_characters(self, text, legal_alphabet=string.printable, key=None, silent=False):
+		"""
+			Validate that only legal characters are contained in a text
+
+			@attention:
+
+			@param text: Some string
+			@type text: str | unicode
+			@param legal_alphabet: String of legal characters
+			@type legal_alphabet: str | unicode
+			@param key: If True, no error message will be made
+			@type key: basestring | None
+			@param silent: If True, no error message will be made
+			@type silent: bool
+
+			@return: bool
+			@rtype: bool
+		"""
+		prefix = ""
+		if key:
+			prefix = "'{}' ".format(key)
+
+		set_legal_alphabet = set(legal_alphabet)
+		set_text = set(text)
+		if not set_legal_alphabet.issuperset(set_text):
+			if not silent:
+				difference = set_text.difference(set_legal_alphabet)
+				difference.discard(set_legal_alphabet)
+				self._logger.error("{}Invalid characters: '{}'".format(prefix, ", ".join(difference)))
+			return False
 
 	def validate_dir(self, directory, only_parent=False, sub_directories=None, file_names=None, key=None, silent=False):
 		"""
