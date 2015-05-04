@@ -297,3 +297,5 @@ if __name__ == '__main__':
 	suite1 = unittest.TestLoader().loadTestsFromTestCase(TestSequenceValidatorMethods)
 	alltests = unittest.TestSuite([suite0, suite1])
 	unittest.TextTestRunner(verbosity=2).run(alltests)
+
+# TODO: get_available_file_path
