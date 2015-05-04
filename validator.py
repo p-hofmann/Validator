@@ -407,7 +407,7 @@ class Validator(object):
 			@type proposed_path: str | unicode
 
 			@return: Available free space
-			@rtype: float
+			@rtype: str
 		"""
 		assert self.validate_dir(proposed_path, only_parent=True), "Bad path '{}'".format(proposed_path)
 
