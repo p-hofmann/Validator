@@ -1,5 +1,5 @@
 __author__ = 'hofmann'
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 import os
 import math
@@ -398,3 +398,28 @@ class Validator(object):
 		statvfs = os.statvfs(directory)
 		free_space = statvfs.f_frsize * statvfs.f_bfree
 		return free_space / math.pow(1024, power)
+
+	def get_available_file_path(self, proposed_path):
+		"""
+			Get available file path.
+
+			@param proposed_path: Directory or file path
+			@type proposed_path: str | unicode
+
+			@return: Available free space
+			@rtype: float
+		"""
+		assert self.validate_dir(proposed_path, only_parent=True), "Bad path '{}'".format(proposed_path)
+
+		if self.validate_dir(proposed_path, silent=True):
+			extension = ''
+			path = proposed_path
+		else:
+			path, extension = os.path.splitext(proposed_path)
+
+		index = 1
+		new_path = proposed_path
+		while os.path.exists(new_path):
+			new_path = "{base}_{index}{ext}".format(base=path, index=index, ext=extension)
+			index += 1
+		return new_path
