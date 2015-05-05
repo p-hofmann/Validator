@@ -221,7 +221,7 @@ class Validator(object):
 			@param directory: A directory
 			@type directory: basestring
 			@param extension: file extension to be filtered for
-			@type extension: basestring | None
+			@type extension: str | unicode | None
 
 			@return: list of files that reflect the filter
 			@rtype: list[str|unicode]
@@ -230,6 +230,9 @@ class Validator(object):
 		assert isinstance(directory, basestring)
 		directory = Validator.get_full_path(directory)
 		assert os.path.isdir(directory)
+
+		if extension.startswith('.'):
+			extension = extension.split('.', 1)[1]
 
 		list_of_file = []
 		if extension is None:
