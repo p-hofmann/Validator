@@ -1,5 +1,5 @@
 __author__ = 'hofmann'
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
 import os
 import glob
@@ -224,7 +224,7 @@ class Validator(object):
 			@type extension: basestring | None
 
 			@return: list of files that reflect the filter
-			@rtype: list[basestring]
+			@rtype: list[str|unicode]
 		"""
 		assert extension is None or isinstance(extension, basestring)
 		assert isinstance(directory, basestring)
