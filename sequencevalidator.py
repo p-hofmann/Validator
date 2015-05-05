@@ -1,5 +1,5 @@
 __author__ = 'hofmann'
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 import io
 import os
@@ -50,6 +50,14 @@ class SequenceValidator(Validator):
 			@rtype: bool
 		"""
 		return isinstance(stream, (file, io.FileIO, StringIO.StringIO)) or stream.__class__ is StringIO.StringIO
+
+	def validate_folder_with_sequence_files(self, directory, file_format, sequence_type, ambiguous, file_extension, key=None, silent=False):
+		list_of_file_paths = self.get_files_in_directory(directory, file_extension)
+		result = True
+		for file_path in list_of_file_paths:
+			if not self.validate_sequence_file(file_path, file_format, sequence_type, ambiguous, key, silent):
+				result = False
+		return result
 
 	def validate_sequence_file(self, file_path, file_format, sequence_type, ambiguous, key=None, silent=False):
 		"""
