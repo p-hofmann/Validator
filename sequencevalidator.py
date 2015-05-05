@@ -52,6 +52,29 @@ class SequenceValidator(Validator):
 		return isinstance(stream, (file, io.FileIO, StringIO.StringIO)) or stream.__class__ is StringIO.StringIO
 
 	def validate_folder_with_sequence_files(self, directory, file_format, sequence_type, ambiguous, file_extension, key=None, silent=False):
+		"""
+			Validate a file to be correctly formatted
+
+			@attention: Currently only phred quality for fastq files
+
+			@param directory: Path to directory with files containing sequences
+			@type directory: str | unicode
+			@param file_format: Format of the file at the file_path provided. Valid: 'fasta', 'fastq'
+			@type file_format: str | unicode
+			@param sequence_type: Are the sequences DNA or RNA? Valid: 'rna', 'dna', 'protein'
+			@type sequence_type: str | unicode
+			@param ambiguous: True or False, DNA example for strict 'GATC',  ambiguous example 'GATCRYWSMKHBVDN'
+			@type ambiguous: bool
+			@param file_extension: file extension to be filtered for. Example: '.fasta' '.fq'
+			@type file_extension: basestring | None
+			@param key: If True, no error message will be made
+			@type key: basestring | None
+			@param silent: If True, no error message will be made
+			@type silent: bool
+
+			@return: True if the file is correctly formatted
+			@rtype: bool
+		"""
 		list_of_file_paths = self.get_files_in_directory(directory, file_extension)
 		result = True
 		for file_path in list_of_file_paths:
