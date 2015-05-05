@@ -232,7 +232,7 @@ class Validator(object):
 		assert os.path.isdir(directory)
 
 		if extension.startswith('.'):
-			extension = extension.split('.', 1)[1]
+			extension = extension[1:]
 
 		list_of_file = []
 		if extension is None:
