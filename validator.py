@@ -2,6 +2,7 @@ __author__ = 'hofmann'
 __version__ = '0.0.4'
 
 import os
+import glob
 import math
 import string
 from numbers import Number
@@ -211,6 +212,35 @@ class Validator(object):
 		value = os.path.normpath(value)
 		value = os.path.abspath(value)
 		return value
+
+	@staticmethod
+	def get_files_in_directory(directory, extension=None):
+		"""
+			Get all files within a directory
+
+			@param directory: A directory
+			@type directory: basestring
+			@param extension: file extension to be filtered for
+			@type extension: basestring | None
+
+			@return: list of files that reflect the filter
+			@rtype: list[basestring]
+		"""
+		assert extension is None or isinstance(extension, basestring)
+		assert isinstance(directory, basestring)
+		directory = Validator.get_full_path(directory)
+		assert os.path.isdir(directory)
+
+		list_of_file = []
+		if extension is None:
+			list_of_items = glob.glob(os.path.join(directory, "*"))
+		else:
+			list_of_items = glob.glob(os.path.join(directory, "*.{}".format(extension)))
+
+		for item in list_of_items:
+			if os.path.isfile(item):
+				list_of_file.append(item)
+		return list_of_file
 
 	def validate_number(self, digit, minimum=None, maximum=None, zero=True, key=None, silent=False):
 		"""
