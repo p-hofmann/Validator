@@ -10,7 +10,7 @@ from Bio.Alphabet import IUPAC
 from Bio.Seq import Seq
 from validator import Validator
 
-
+# Todo: allow for multiple sequence_type
 class SequenceValidator(Validator):
 	"""
 		Colection of methods for the validation of sequences and sequence files
