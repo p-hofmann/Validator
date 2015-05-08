@@ -32,6 +32,9 @@ class Validator(object):
 		if logfile:
 			self._logger.set_log_file(logfile)
 
+		self._logfile = logfile
+		self._verbose = verbose
+
 	def __exit__(self, type, value, traceback):
 		self.close()
 
