@@ -1,5 +1,5 @@
 __author__ = 'hofmann'
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 
 import os
 import glob
@@ -73,10 +73,21 @@ class Validator(object):
 				self._logger.error("{}Invalid directory".format(prefix))
 			return False
 
-		file_path = self.get_full_path(file_path)
-		parent_directory = os.path.dirname(file_path)
-		if not self.validate_dir(parent_directory, key=key):
+		# file_path = self.get_full_path(file_path)
+		parent_directory, filename = os.path.split(file_path)
+
+		if parent_directory and not self.validate_dir(parent_directory, key=key):
+			if not silent:
+				self._logger.error("{}Directory of file does not exist: '{}'".format(prefix, parent_directory))
 			return False
+
+		if executable and not parent_directory and not os.path.isfile(file_path):
+			for path in os.environ["PATH"].split(os.pathsep):
+				path = path.strip('"')
+				exe_file = os.path.join(path, filename)
+				if os.path.isfile(exe_file):
+					file_path = exe_file
+					break
 
 		if not os.path.isfile(file_path):
 			if not silent:
