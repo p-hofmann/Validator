@@ -51,7 +51,6 @@ class DefaultValidator(unittest.TestCase):
 			touch(file_path)
 
 	def tearDown(self):
-		self.validator.close()
 		self.validator = None
 		self.file_stream.close()
 		self.file_stream = None
@@ -219,7 +218,6 @@ class DefaultSequenceValidator(unittest.TestCase):
 		self.validator = SequenceValidator(logfile=self.file_stream, verbose=False)
 
 	def tearDown(self):
-		self.validator.close()
 		self.validator = None
 		self.file_stream.close()
 		self.file_stream = None
@@ -237,7 +235,8 @@ class TestSequenceValidatorMethods(DefaultSequenceValidator):
 		fastq_file = os.path.join(self.dir_input, self.filename_fq)
 		fastq_file_bad0 = os.path.join(self.dir_input, self.filename_fq_bad0)
 		self.assertTrue(self.validator.validate_sequence_file(fasta_file, "fasta", "dna", ambiguous=False))
-		self.assertFalse(self.validator.validate_sequence_file(fasta_file_ambiguous, "fasta", "dna", ambiguous=False, silent=True))
+		self.assertFalse(self.validator.validate_sequence_file(
+			fasta_file_ambiguous, "fasta", "dna", ambiguous=False, silent=True))
 		self.assertTrue(self.validator.validate_sequence_file(fasta_file_ambiguous, "fasta", "dna", ambiguous=True))
 		self.assertFalse(self.validator.validate_sequence_file(fasta_file_bad0, "fasta", "dna", ambiguous=False, silent=True))
 		self.assertFalse(self.validator.validate_sequence_file(fasta_file_bad1, "fasta", "dna", ambiguous=False, silent=True))
