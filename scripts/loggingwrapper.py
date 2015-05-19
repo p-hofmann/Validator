@@ -66,13 +66,13 @@ class LoggingWrapper(object):
 				self.add_log_stream(stream=stream, level=logging.WARNING)
 
 	def __exit__(self, type, value, traceback):
-		self.close()
+		self._close()
 
 	def __enter__(self):
 		return self
 
 	def __del__(self):
-		self.close()
+		self._close()
 
 	@staticmethod
 	def is_stream(stream):
@@ -81,7 +81,7 @@ class LoggingWrapper(object):
 	def get_label(self):
 		return self._label
 
-	def close(self):
+	def _close(self):
 		"""
 			Close all logfile handler, unless given as stream.
 			Remove all stream handler from handler list, stopping the log service
