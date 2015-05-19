@@ -1,10 +1,11 @@
 __author__ = 'hofmann'
-__version__ = '0.0.6'
+__version__ = '0.0.7'
 
 import os
 import glob
 import math
 import string
+from io import FileIO
 from numbers import Number
 from scripts.loggingwrapper import LoggingWrapper
 
@@ -32,7 +33,11 @@ class Validator(object):
 		if logfile:
 			self._logger.set_log_file(logfile)
 
-		self._logfile = logfile
+		self._logfile = None
+		if isinstance(logfile, basestring):
+			self._logfile = logfile
+		elif isinstance(logfile, (file, FileIO)):
+			self._logfile = logfile.name
 		self._verbose = verbose
 
 	def __exit__(self, type, value, traceback):
