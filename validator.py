@@ -41,13 +41,15 @@ class Validator(object):
 		self._verbose = verbose
 
 	def __exit__(self, type, value, traceback):
-		self.close()
+		self._close()
 
 	def __enter__(self):
 		return self
 
-	def close(self):
-		self._logger.close()
+	def __del__(self):
+		self._close()
+
+	def _close(self):
 		self._logger = None
 
 	def validate_file(self, file_path, executable=False, key=None, silent=False):
