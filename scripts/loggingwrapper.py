@@ -1,5 +1,5 @@
 __author__ = 'hofmann'
-__version__ = '0.0.8'
+__version__ = '0.0.9'
 
 import sys
 import io
@@ -70,6 +70,9 @@ class LoggingWrapper(object):
 
 	def __enter__(self):
 		return self
+
+	def __del__(self):
+		self.close()
 
 	@staticmethod
 	def is_stream(stream):
