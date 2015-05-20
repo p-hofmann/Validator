@@ -1,5 +1,5 @@
 __author__ = 'hofmann'
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
 import io
 import os
@@ -40,20 +40,8 @@ class SequenceValidator(Validator):
 
 	_legal_text_characters = string.printable
 
-	@staticmethod
-	def _is_stream(stream):
-		"""
-			Test for streams
-
-			@param stream: Any kind of stream type
-			@type stream: file | io.FileIO | StringIO.StringIO
-
-			@return: True if stream
-			@rtype: bool
-		"""
-		return isinstance(stream, (file, io.FileIO, StringIO.StringIO)) or stream.__class__ is StringIO.StringIO
-
-	def validate_folder_with_sequence_files(self, directory, file_format, sequence_type, ambiguous, file_extension, key=None, silent=False):
+	def validate_folder_with_sequence_files(
+		self, directory, file_format, sequence_type, ambiguous, file_extension, key=None, silent=False):
 		"""
 			Validate a file to be correctly formatted
 
@@ -157,27 +145,27 @@ class SequenceValidator(Validator):
 				return False
 		return True
 
-	def _validate_file_start(self, file_handle, file_format):
+	def _validate_file_start(self, stream_handle, file_format):
 		"""
 			Validate that a stream with sequences starts with the correct character
 
-			@param file_handle: Any kind of stream type
-			@type file_handle: file | io.FileIO | StringIO.StringIO
+			@param stream_handle: Any kind of stream type
+			@type stream_handle: file | io.FileIO | StringIO.StringIO
 			@param file_format: Format of the file at the file_path provided. Valid: 'fasta', 'fastq'
 			@type file_format: str | unicode
 
 			@return: True if the first character is correct
 			@rtype: bool
 		"""
-		assert self._is_stream(file_handle)
+		assert self.is_stream(stream_handle)
 		assert isinstance(file_format, basestring)
 		file_format = file_format.lower()
 		assert file_format in self._formats
 
 		sequence_indicator = self._sequence_indicators[file_format]
 
-		head = file_handle.read(1)
-		file_handle.seek(0)
+		head = stream_handle.read(1)
+		stream_handle.seek(0)
 		if not head:
 			return False
 		if not head.startswith(sequence_indicator):
