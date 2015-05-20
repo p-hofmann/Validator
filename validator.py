@@ -1,10 +1,12 @@
 __author__ = 'hofmann'
-__version__ = '0.0.8'
+__version__ = '0.1.0'
 
 import os
 import glob
 import math
 import string
+import io
+import StringIO
 from io import FileIO
 from numbers import Number
 from scripts.loggingwrapper import LoggingWrapper
@@ -51,6 +53,19 @@ class Validator(object):
 
 	def _close(self):
 		self._logger = None
+
+	@staticmethod
+	def is_stream(stream):
+		"""
+			Test for streams
+
+			@param stream: Any kind of stream type
+			@type stream: file | io.FileIO | StringIO.StringIO
+
+			@return: True if stream
+			@rtype: bool
+		"""
+		return isinstance(stream, (file, io.FileIO, StringIO.StringIO)) or stream.__class__ is StringIO.StringIO
 
 	def validate_file(self, file_path, executable=False, key=None, silent=False):
 		"""
