@@ -1,5 +1,5 @@
 __author__ = 'hofmann'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 import os
 import glob
@@ -14,8 +14,12 @@ from scripts.loggingwrapper import LoggingWrapper
 
 class Validator(object):
 
-	_map_logfile_handler = dict()
 	_label = "Validator"
+
+	_boolean_states = {
+		'yes': True, 'true': True, 'on': True,
+		'no': False, 'false': False, 'off': False,
+		'y': True, 't': True, 'n': False, 'f': False}
 
 	def __init__(self, logfile=None, verbose=False):
 		"""
@@ -66,6 +70,31 @@ class Validator(object):
 			@rtype: bool
 		"""
 		return isinstance(stream, (file, io.FileIO, StringIO.StringIO)) or stream.__class__ is StringIO.StringIO
+
+	def is_boolean_state(self, word):
+		"""
+			Test for boolean state
+
+			@param word: A word
+			@type word: str | unicode
+
+			@return: True if word is identified as an word equivalent to true or false
+			@rtype: bool
+		"""
+		return str(word) in self._boolean_states
+
+	def get_boolean_state(self, word):
+		"""
+			Get boolean from word
+
+			@param word: A word
+			@type word: str | unicode
+
+			@return: True if word is identified as an word equivalent to true
+			@rtype: bool
+		"""
+		assert str(word) in self._boolean_states
+		return self._boolean_states[str(word)]
 
 	def validate_file(self, file_path, executable=False, key=None, silent=False):
 		"""
