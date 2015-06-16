@@ -1,18 +1,15 @@
 __author__ = 'hofmann'
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 import os
 import glob
 import math
 import string
-import io
-import StringIO
-from io import FileIO
 from numbers import Number
-from scripts.loggingwrapper import LoggingWrapper
+from scripts.loggingwrapper import DefaultLogging
 
 
-class Validator(object):
+class Validator(DefaultLogging):
 
 	_label = "Validator"
 
@@ -20,56 +17,6 @@ class Validator(object):
 		'yes': True, 'true': True, 'on': True,
 		'no': False, 'false': False, 'off': False,
 		'y': True, 't': True, 'n': False, 'f': False}
-
-	def __init__(self, logfile=None, verbose=False):
-		"""
-			Collection of methods for value validations
-
-			@attention: config_file argument may be file path or stream.
-
-			@param logfile: file handler or file path to a log file
-			@type logfile: file | FileIO | None
-			@param verbose: Not verbose means that only warnings and errors will be past to stream
-			@type verbose: bool
-
-			@return: None
-			@rtype: None
-		"""
-		self._logger = LoggingWrapper(self._label, verbose=verbose)
-		if logfile:
-			self._logger.set_log_file(logfile)
-
-		self._logfile = None
-		if isinstance(logfile, basestring):
-			self._logfile = logfile
-		elif isinstance(logfile, (file, FileIO)):
-			self._logfile = logfile.name
-		self._verbose = verbose
-
-	def __exit__(self, type, value, traceback):
-		self._close()
-
-	def __enter__(self):
-		return self
-
-	def __del__(self):
-		self._close()
-
-	def _close(self):
-		self._logger = None
-
-	@staticmethod
-	def is_stream(stream):
-		"""
-			Test for streams
-
-			@param stream: Any kind of stream type
-			@type stream: file | io.FileIO | StringIO.StringIO
-
-			@return: True if stream
-			@rtype: bool
-		"""
-		return isinstance(stream, (file, io.FileIO, StringIO.StringIO)) or stream.__class__ is StringIO.StringIO
 
 	def is_boolean_state(self, word):
 		"""
