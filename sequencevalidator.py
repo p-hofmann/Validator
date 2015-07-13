@@ -1,5 +1,5 @@
 __author__ = 'hofmann'
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 
 import io
 import os
@@ -72,6 +72,21 @@ class SequenceValidator(Validator):
 				result = False
 		return result
 
+	def _validate_sequence_record(self, seq_record, set_of_seq_id, file_format, key=None, silent=False):
+			result = True
+			if not self.validate_sequence(seq_record.seq, key=key, silent=silent):
+				result = False
+			if not self.validate_sequence_id(seq_record.id, used_ids=set_of_seq_id, key=key, silent=silent):
+				result = False
+			set_of_seq_id.add(seq_record.id)
+			if not self.validate_sequence_description(seq_record.description, key=key, silent=silent):
+				result = False
+			if file_format == "fastq":
+				if not self.validate_sequence_quality(
+					seq_record.letter_annotations["phred_quality"], key=key, silent=silent):
+					result = False
+			return result
+
 	def validate_sequence_file(self, file_path, file_format, sequence_type, ambiguous, key=None, silent=False):
 		"""
 			Validate a file to be correctly formatted
@@ -122,19 +137,7 @@ class SequenceValidator(Validator):
 			try:
 				for seq_record in SeqIO.parse(file_handle, file_format, alphabet=alphabet):
 					sequence_count += 1
-					result = True
-					if not self.validate_sequence(seq_record.seq, key=key, silent=silent):
-						result = False
-					if not self.validate_sequence_id(seq_record.id, used_ids=set_of_seq_id, key=key, silent=silent):
-						result = False
-					set_of_seq_id.add(seq_record.id)
-					if not self.validate_sequence_description(seq_record.description, key=key, silent=silent):
-						result = False
-					if file_format == "fastq":
-						if not self.validate_sequence_quality(
-							seq_record.letter_annotations["phred_quality"], key=key, silent=silent):
-							result = False
-					if not result:
+					if not self._validate_sequence_record(seq_record, set_of_seq_id, file_format, key=None, silent=False):
 						if not silent:
 							self._logger.error("{}{}. sequence '{}' is invalid.".format(prefix, sequence_count, seq_record.id))
 						return False
@@ -312,3 +315,72 @@ class SequenceValidator(Validator):
 			sequence.upper(), legal_alphabet=sequence.alphabet.letters, key=key, silent=silent):
 			return False
 		return True
+
+	def validate_sequence_length(
+		self, file_path, file_format, sequence_type, ambiguous, min_length_sequence, key=None, silent=False):
+		"""
+			Validate a file to be correctly formatted and have sequences of a minimum length
+
+			@attention: Currently only phred quality for fastq files
+
+			@param file_path: Path to file containing sequences
+			@type file_path: str | unicode
+			@param file_format: Format of the file at the file_path provided. Valid: 'fasta', 'fastq'
+			@type file_format: str | unicode
+			@param sequence_type: Are the sequences DNA or RNA? Valid: 'rna', 'dna', 'protein'
+			@type sequence_type: str | unicode
+			@param ambiguous: True or False, DNA example for strict 'GATC',  ambiguous example 'GATCRYWSMKHBVDN'
+			@type ambiguous: bool
+			@param min_length_sequence:
+			@type min_length_sequence: int | long
+			@param key: If True, no error message will be made
+			@type key: basestring | None
+			@param silent: If True, no error message will be made
+			@type silent: bool
+
+			@return: True if the file is correctly formatted
+			@rtype: False | int | long
+		"""
+		assert self.validate_file(file_path)
+		assert isinstance(file_format, basestring)
+		file_format = file_format.lower()
+		assert file_format in self._formats
+		assert isinstance(sequence_type, basestring)
+		sequence_type = sequence_type.lower()
+		assert sequence_type in self._alphabets
+
+		prefix = ""
+		if key:
+			prefix = "'{}' ".format(key)
+
+		if ambiguous:
+			alphabet = self._alphabets[sequence_type][1]
+		else:
+			alphabet = self._alphabets[sequence_type][0]
+
+		set_of_seq_id = set()
+		total_length = 0
+		with open(file_path) as file_handle:
+			if not self._validate_file_start(file_handle, file_format):
+				if not silent:
+					self._logger.error("{}Invalid beginning of file '{}'.".format(prefix, os.path.basename(file_path)))
+				return False
+			sequence_count = 0
+			try:
+				for seq_record in SeqIO.parse(file_handle, file_format, alphabet=alphabet):
+					sequence_count += 1
+					if not self._validate_sequence_record(seq_record, set_of_seq_id, file_format, key=None, silent=False):
+						if not silent:
+							self._logger.error("{}{}. sequence '{}' is invalid.".format(prefix, sequence_count, seq_record.id))
+						return False
+					if len(seq_record.seq) < min_length_sequence:
+						if not silent:
+							self._logger.error("{}{}. sequence '{}' is too small. {} < {}".format(prefix, sequence_count, seq_record.id, len(seq_record.seq), min_length_sequence))
+						return False
+					total_length += len(seq_record.seq)
+			except Exception as e:
+				if not silent:
+					self._logger.error("{}Corrupt sequence in file '{}'.\nException: {}".format(
+						prefix, os.path.basename(file_path), e.message))
+				return False
+		return total_length

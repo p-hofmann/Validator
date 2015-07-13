@@ -291,6 +291,17 @@ class TestSequenceValidatorMethods(DefaultSequenceValidator):
 				self.assertTrue(self.validator.validate_sequence_description(seq_record.description))
 		self._success = True
 
+	def test_validate_sequence_length(self):
+		fasta_file = os.path.join(self.dir_input, self.filename_fasta)
+		seq_len = self.validator.validate_sequence_length(fasta_file, "fasta", "dna", ambiguous=False, min_length_sequence=1)
+		self.assertEqual(seq_len, 9)
+		seq_len = self.validator.validate_sequence_length(fasta_file, "fasta", "dna", ambiguous=False, min_length_sequence=4)
+		self.assertTrue(seq_len)
+		seq_len = self.validator.validate_sequence_length(
+			fasta_file, "fasta", "dna", ambiguous=False, min_length_sequence=5, silent=True)
+		self.assertFalse(seq_len)
+		self._success = True
+
 if __name__ == '__main__':
 	suite0 = unittest.TestLoader().loadTestsFromTestCase(TestValidatorMethods)
 	suite1 = unittest.TestLoader().loadTestsFromTestCase(TestSequenceValidatorMethods)
