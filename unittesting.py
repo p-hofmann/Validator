@@ -112,6 +112,7 @@ class TestValidatorMethods(DefaultValidator):
 			("/afg/", "/afg"),
 			("/afg/qwe", "/afg/qwe"),
 			("qwe", os.path.join(os.getcwd(), "qwe")),
+			("samtools", "/usr/bin/samtools"),
 		]
 		for path in paths:
 			full_path = self.validator.get_full_path(path[0])
@@ -289,17 +290,6 @@ class TestSequenceValidatorMethods(DefaultSequenceValidator):
 		with open(fastq_file) as stream:
 			for seq_record in SeqIO.parse(stream, "fastq", alphabet=IUPAC.unambiguous_dna):
 				self.assertTrue(self.validator.validate_sequence_description(seq_record.description))
-		self._success = True
-
-	def test_validate_sequence_length(self):
-		fasta_file = os.path.join(self.dir_input, self.filename_fasta)
-		seq_len = self.validator.validate_sequence_length(fasta_file, "fasta", "dna", ambiguous=False, min_length_sequence=1)
-		self.assertEqual(seq_len, 9)
-		seq_len = self.validator.validate_sequence_length(fasta_file, "fasta", "dna", ambiguous=False, min_length_sequence=4)
-		self.assertTrue(seq_len)
-		seq_len = self.validator.validate_sequence_length(
-			fasta_file, "fasta", "dna", ambiguous=False, min_length_sequence=5, silent=True)
-		self.assertFalse(seq_len)
 		self._success = True
 
 if __name__ == '__main__':
