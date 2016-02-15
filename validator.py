@@ -1,10 +1,11 @@
 __author__ = 'hofmann'
-__version__ = '0.1.7'
+__version__ = '0.1.8'
 
 import os
 import glob
 import math
 import string
+import filecmp
 from numbers import Number
 from scripts.loggingwrapper import DefaultLogging
 
@@ -20,42 +21,61 @@ class Validator(DefaultLogging):
 
 	def is_boolean_state(self, word):
 		"""
-			Test for boolean state
+		Test for boolean state
 
-			@param word: A word
-			@type word: str | unicode
+		@param word: A word
+		@type word: str | unicode
 
-			@return: True if word is identified as an word equivalent to true or false
-			@rtype: bool
+		@return: True if word is identified as an word equivalent to true or false
+		@rtype: bool
 		"""
 		return str(word) in self._boolean_states
 
 	def get_boolean_state(self, word):
 		"""
-			Get boolean from word
+		Get boolean from word
 
-			@param word: A word
-			@type word: str | unicode
+		@param word: A word
+		@type word: str | unicode
 
-			@return: True if word is identified as an word equivalent to true
-			@rtype: bool
+		@return: True if word is identified as an word equivalent to true
+		@rtype: bool
 		"""
 		assert str(word) in self._boolean_states
 		return self._boolean_states[str(word)]
 
+	def are_identical_files(self, file_path_a, file_path_b, silent=False):
+		"""
+		Test two text files if they are identical.
+
+		@attention: Only for text files
+
+		@param file_path_a: file path
+		@type file_path_a: str | unicode
+		@param file_path_b: file path
+		@type file_path_b: str | unicode
+
+		@rtype: bool
+		"""
+		assert isinstance(file_path_a, basestring)
+		assert isinstance(file_path_b, basestring)
+		assert self.validate_file(file_path_a)
+		assert self.validate_file(file_path_b)
+		return filecmp.cmp(file_path_a, file_path_b, shallow=0)
+
 	def validate_file(self, file_path, executable=False, key=None, silent=False):
 		"""
-			Collection of methods for value validations
+		Collection of methods for value validations
 
-			@attention: config_file argument may be file path or stream.
+		@attention: config_file argument may be file path or stream.
 
-			@param file_path: path to a file
-			@type file_path: basestring
-			@param silent: If True, no error message will be made
-			@type silent: bool
+		@param file_path: path to a file
+		@type file_path: basestring
+		@param silent: If True, no error message will be made
+		@type silent: bool
 
-			@return: True if valid
-			@rtype: bool
+		@return: True if valid
+		@rtype: bool
 		"""
 		assert isinstance(executable, bool)
 		assert isinstance(silent, bool)
@@ -101,21 +121,21 @@ class Validator(DefaultLogging):
 
 	def validate_characters(self, text, legal_alphabet=string.printable, key=None, silent=False):
 		"""
-			Validate that only legal characters are contained in a text
+		Validate that only legal characters are contained in a text
 
-			@attention:
+		@attention:
 
-			@param text: Some string
-			@type text: str | unicode
-			@param legal_alphabet: String of legal characters
-			@type legal_alphabet: str | unicode
-			@param key: If True, no error message will be made
-			@type key: basestring | None
-			@param silent: If True, no error message will be made
-			@type silent: bool
+		@param text: Some string
+		@type text: str | unicode
+		@param legal_alphabet: String of legal characters
+		@type legal_alphabet: str | unicode
+		@param key: If True, no error message will be made
+		@type key: basestring | None
+		@param silent: If True, no error message will be made
+		@type silent: bool
 
-			@return: bool
-			@rtype: bool
+		@return: bool
+		@rtype: bool
 		"""
 		prefix = ""
 		if key:
@@ -133,23 +153,23 @@ class Validator(DefaultLogging):
 
 	def validate_dir(self, directory, only_parent=False, sub_directories=None, file_names=None, key=None, silent=False):
 		"""
-			Validate existence of directory or parent directory or sub directories and files.
+		Validate existence of directory or parent directory or sub directories and files.
 
-			@attention:
+		@attention:
 
-			@param directory: directory path of a folder
-			@type directory: basestring
-			@param only_parent: test only the existence of the parent directory
-			@type only_parent: bool
-			@param sub_directories: test the existence of sub directories
-			@type sub_directories: list[basestring]
-			@param file_names: test the existence of files within the directory
-			@type file_names: list[basestring]
-			@param silent: If True, no error message will be made
-			@type silent: bool
+		@param directory: directory path of a folder
+		@type directory: basestring
+		@param only_parent: test only the existence of the parent directory
+		@type only_parent: bool
+		@param sub_directories: test the existence of sub directories
+		@type sub_directories: list[basestring]
+		@param file_names: test the existence of files within the directory
+		@type file_names: list[basestring]
+		@param silent: If True, no error message will be made
+		@type silent: bool
 
-			@return: bool
-			@rtype: bool
+		@return: bool
+		@rtype: bool
 		"""
 		# TODO: test for valid characters
 
@@ -210,15 +230,15 @@ class Validator(DefaultLogging):
 	@staticmethod
 	def get_full_path(value):
 		"""
-			Get the normalized absolute path.
+		Get the normalized absolute path.
 
-			@attention:
+		@attention:
 
-			@param value: directory path or file path
-			@type value: basestring
+		@param value: directory path or file path
+		@type value: basestring
 
-			@return: full path
-			@rtype: str
+		@return: full path
+		@rtype: str
 		"""
 		assert isinstance(value, basestring)
 
@@ -240,15 +260,15 @@ class Validator(DefaultLogging):
 	@staticmethod
 	def get_files_in_directory(directory, extension=None):
 		"""
-			Get all files within a directory
+		Get all files within a directory
 
-			@param directory: A directory
-			@type directory: basestring
-			@param extension: file extension to be filtered for
-			@type extension: str | unicode | None
+		@param directory: A directory
+		@type directory: basestring
+		@param extension: file extension to be filtered for
+		@type extension: str | unicode | None
 
-			@return: list of files that reflect the filter
-			@rtype: list[str|unicode]
+		@return: list of files that reflect the filter
+		@rtype: list[str|unicode]
 		"""
 		assert extension is None or isinstance(extension, basestring)
 		assert isinstance(directory, basestring)
@@ -271,23 +291,23 @@ class Validator(DefaultLogging):
 
 	def validate_number(self, digit, minimum=None, maximum=None, zero=True, key=None, silent=False):
 		"""
-			Validate that a variable is a number within a specific range if given.
+		Validate that a variable is a number within a specific range if given.
 
-			@attention: valid minimum <= digit <= maximum
+		@attention: valid minimum <= digit <= maximum
 
-			@param digit: Any number such as int, float, long
-			@type digit: Number
-			@param minimum: valid minimum <= digit
-			@type minimum: Number
-			@param maximum: valid digit <= maximum
-			@type maximum: Number
-			@param zero: If 0 is to be excluded
-			@type zero: bool
-			@param silent: If True, no error message will be made
-			@type silent: bool
+		@param digit: Any number such as int, float, long
+		@type digit: Number
+		@param minimum: valid minimum <= digit
+		@type minimum: Number
+		@param maximum: valid digit <= maximum
+		@type maximum: Number
+		@param zero: If 0 is to be excluded
+		@type zero: bool
+		@param silent: If True, no error message will be made
+		@type silent: bool
 
-			@return: bool
-			@rtype: bool
+		@return: bool
+		@rtype: bool
 		"""
 		# TODO: digit >= -1 can not be properly tested yet
 		assert isinstance(digit, Number), type(digit)
@@ -308,7 +328,7 @@ class Validator(DefaultLogging):
 
 		if not zero and digit == 0:
 			if not silent:
-				self._logger.error("{}Invalid digit, must not be {}".format(prefix, maximum, digit))
+				self._logger.error("{}Invalid digit, must not be {}".format(prefix, digit))
 			return False
 		return True
 
@@ -321,26 +341,26 @@ class Validator(DefaultLogging):
 		key=None, silent=False
 		):
 		"""
-			Validate that sufficient free space is available at a target directory.
+		Validate that sufficient free space is available at a target directory.
 
-			@attention: Only one 'required space' argument will be accepted
+		@attention: Only one 'required space' argument will be accepted
 
-			@param directory: directory path of a folder
-			@type directory: basestring
-			@param required_space_in_bytes: Required available space in bytes
-			@type required_space_in_bytes: Number
-			@param required_space_in_kb: Required available space in kilobytes
-			@type required_space_in_kb: Number
-			@param required_space_in_mb: Required available space in megabytes
-			@type required_space_in_mb: Number
-			@param required_space_in_gb: Required available space in gigabytes
-			@type required_space_in_gb: Number
+		@param directory: directory path of a folder
+		@type directory: basestring
+		@param required_space_in_bytes: Required available space in bytes
+		@type required_space_in_bytes: Number
+		@param required_space_in_kb: Required available space in kilobytes
+		@type required_space_in_kb: Number
+		@param required_space_in_mb: Required available space in megabytes
+		@type required_space_in_mb: Number
+		@param required_space_in_gb: Required available space in gigabytes
+		@type required_space_in_gb: Number
 
-			@param silent: If True, no error message will be made
-			@type silent: bool
+		@param silent: If True, no error message will be made
+		@type silent: bool
 
-			@return: bool
-			@rtype: bool
+		@return: bool
+		@rtype: bool
 		"""
 		required_space = None
 		count = 4
@@ -387,65 +407,65 @@ class Validator(DefaultLogging):
 
 	def free_space_in_giga_bytes(self, directory):
 		"""
-			Get available free space at a target directory.
+		Get available free space at a target directory.
 
-			@param directory: directory path of a folder
-			@type directory: basestring
+		@param directory: directory path of a folder
+		@type directory: basestring
 
-			@return: Available free space
-			@rtype: float
+		@return: Available free space
+		@rtype: float
 		"""
 		assert self.validate_dir(directory)
 		return self._free_space(directory, 3)
 
 	def free_space_in_mega_bytes(self, directory):
 		"""
-			Get available free space at a target directory.
+		Get available free space at a target directory.
 
-			@param directory: directory path of a folder
-			@type directory: basestring
+		@param directory: directory path of a folder
+		@type directory: basestring
 
-			@return: Available free space
-			@rtype: float
+		@return: Available free space
+		@rtype: float
 		"""
 		assert self.validate_dir(directory)
 		return self._free_space(directory, 2)
 
 	def free_space_in_kilo_bytes(self, directory):
 		"""
-			Get available free space at a target directory.
+		Get available free space at a target directory.
 
-			@param directory: directory path of a folder
-			@type directory: basestring
+		@param directory: directory path of a folder
+		@type directory: basestring
 
-			@return: Available free space
-			@rtype: float
+		@return: Available free space
+		@rtype: float
 		"""
 		assert self.validate_dir(directory)
 		return self._free_space(directory, 1)
 
 	def free_space_in_bytes(self, directory):
 		"""
-			Get available free space at a target directory.
+		Get available free space at a target directory.
 
-			@param directory: directory path of a folder
-			@type directory: basestring
+		@param directory: directory path of a folder
+		@type directory: basestring
 
-			@return: Available free space
-			@rtype: float
+		@return: Available free space
+		@rtype: float
 		"""
 		assert self.validate_dir(directory)
 		return self._free_space(directory)
 
 	def _free_space(self, directory, power=0):
 		"""
-			Get available free space at a target directory.
+		Get available free space at a target directory.
 
-			@param directory: directory path of a folder
-			@type directory: basestring
+		@param directory: directory path of a folder
+		@type directory: basestring
 
-			@return: Available free space
-			@rtype: float
+		@return: Available free space
+		@rtype: float
 		"""
 		assert power >= 0
 		assert isinstance(directory, basestring)
@@ -458,13 +478,13 @@ class Validator(DefaultLogging):
 
 	def get_available_file_path(self, proposed_path):
 		"""
-			Get available file path.
+		Get available file path.
 
-			@param proposed_path: Directory or file path
-			@type proposed_path: str | unicode
+		@param proposed_path: Directory or file path
+		@type proposed_path: str | unicode
 
-			@return: Available free space
-			@rtype: str
+		@return: Available free space
+		@rtype: str
 		"""
 		assert self.validate_dir(proposed_path, only_parent=True), "Bad path '{}'".format(proposed_path)
 
