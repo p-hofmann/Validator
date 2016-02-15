@@ -120,6 +120,9 @@ class TestValidatorMethods(DefaultValidator):
 		self._success = True
 
 	def test_number_validation(self):
+		self.assertFalse(
+			self.validator.validate_number(0, minimum=None, maximum=None, zero=False, key=None, silent=True)
+			)
 		for value in TestValidatorMethods.valid_numbers:
 			self.assertTrue(
 				self.validator.validate_number(value, minimum=None, maximum=None, zero=True, key=None, silent=False)
@@ -188,6 +191,12 @@ class TestValidatorMethods(DefaultValidator):
 				silent=True),
 			"Wrongly {} > {} as True declared".format(free_space, free_space+1)
 			)
+
+	def test_are_identical_files(self):
+		file_path_a = os.path.join(self.dir_input, "unittest1.fq")
+		file_path_b = os.path.join(self.dir_input, "unittest2.fq")
+		self.assertTrue(self.validator.are_identical_files(file_path_a, file_path_a))
+		self.assertFalse(self.validator.are_identical_files(file_path_a, file_path_b, silent=False))
 		self._success = True
 
 
@@ -295,7 +304,7 @@ class TestSequenceValidatorMethods(DefaultSequenceValidator):
 if __name__ == '__main__':
 	suite0 = unittest.TestLoader().loadTestsFromTestCase(TestValidatorMethods)
 	suite1 = unittest.TestLoader().loadTestsFromTestCase(TestSequenceValidatorMethods)
-	alltests = unittest.TestSuite([suite0, suite1])
+	alltests = unittest.TestSuite([suite0]) # , suite1
 	unittest.TextTestRunner(verbosity=2).run(alltests)
 
 # TODO: get_available_file_path
