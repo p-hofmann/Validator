@@ -19,7 +19,8 @@ class Validator(DefaultLogging):
 		'no': False, 'false': False, 'off': False,
 		'y': True, 't': True, 'n': False, 'f': False}
 
-	def is_boolean_state(self, word):
+	@staticmethod
+	def is_boolean_state(word):
 		"""
 		Test for boolean state
 
@@ -29,9 +30,10 @@ class Validator(DefaultLogging):
 		@return: True if word is identified as an word equivalent to true or false
 		@rtype: bool
 		"""
-		return str(word) in self._boolean_states
+		return str(word) in Validator._boolean_states
 
-	def get_boolean_state(self, word):
+	@staticmethod
+	def get_boolean_state(word):
 		"""
 		Get boolean from word
 
@@ -41,9 +43,10 @@ class Validator(DefaultLogging):
 		@return: True if word is identified as an word equivalent to true
 		@rtype: bool
 		"""
-		assert str(word) in self._boolean_states
-		return self._boolean_states[str(word)]
+		assert str(word) in Validator._boolean_states
+		return Validator._boolean_states[str(word)]
 
+	@staticmethod
 	def are_identical_files(self, file_path_a, file_path_b, silent=False):
 		"""
 		Test two text files if they are identical.
