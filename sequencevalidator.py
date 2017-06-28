@@ -1,5 +1,5 @@
 __author__ = 'hofmann'
-__version__ = '0.0.7'
+__version__ = '0.0.8'
 
 import io
 import os
@@ -127,6 +127,11 @@ class SequenceValidator(Validator):
             alphabet = self._alphabets[sequence_type][1]
         else:
             alphabet = self._alphabets[sequence_type][0]
+
+        if os.path.getsize(file_path) == 0:
+            if not silent:
+                self._logger.error("{}Invalid sequence file '{}'.".format(prefix, os.path.basename(file_path)))
+            return False
 
         set_of_seq_id = set()
 
