@@ -40,9 +40,8 @@ class DefaultValidator(unittest.TestCase):
         DefaultSequenceValidator._test_case_id += 1
 
         logfile = os.path.join(self.dir_output, self.log_filename)
-        self.file_stream = open(logfile, 'a')
 
-        self.validator = Validator(logfile=self.file_stream, verbose=False)
+        self.validator = Validator(logfile=logfile, verbose=False)
         self.temp_directory = tempfile.gettempdir()
         self.directory = tempfile.mkdtemp(dir=self.temp_directory)
         self.sub_directory = tempfile.mkdtemp(dir=self.directory)
@@ -52,8 +51,6 @@ class DefaultValidator(unittest.TestCase):
 
     def tearDown(self):
         self.validator = None
-        self.file_stream.close()
-        self.file_stream = None
         if self._success:
             shutil.rmtree(self.dir_output)
         if os.path.isdir(self.directory):
@@ -191,6 +188,7 @@ class TestValidatorMethods(DefaultValidator):
                 silent=True),
             "Wrongly {} > {} as True declared".format(free_space, free_space+1)
             )
+        self._success = True
 
     def test_are_identical_files(self):
         file_path_a = os.path.join(self.dir_input, "unittest1.fq")
@@ -224,13 +222,10 @@ class DefaultSequenceValidator(unittest.TestCase):
         DefaultSequenceValidator._test_case_id += 1
 
         logfile = os.path.join(self.dir_output, self.log_filename)
-        self.file_stream = open(logfile, 'a')
-        self.validator = SequenceValidator(logfile=self.file_stream, verbose=False)
+        self.validator = SequenceValidator(logfile=logfile, verbose=False)
 
     def tearDown(self):
         self.validator = None
-        self.file_stream.close()
-        self.file_stream = None
         if self._success:
             shutil.rmtree(self.dir_output)
 
